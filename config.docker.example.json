@@ -1,0 +1,37 @@
+{
+    "gateway_port": 3000,
+    "facilitator_url": "https://www.x402.org/facilitator",
+    "target_api_url": "http://backend:3001",
+    "networks": [
+        {
+            "type": "evm",
+            "network": "base-sepolia",
+            "payment_address": "YOUR_EVM_ADDRESS"
+        },
+        {
+            "type": "solana",
+            "network": "solana-devnet",
+            "payment_address": "YOUR_SOLANA_PUBKEY"
+        }
+    ],
+    "routes": {
+        "free": [
+            "/free",
+            "/health"
+        ],
+        "protected": [
+            {
+                "path": "/protected",
+                "usdc_amount": 1000
+            },
+            {
+                "path": "/premium",
+                "usdc_amount": 5000
+            },
+            {
+                "path": "/vip",
+                "usdc_amount": 10000
+            }
+        ]
+    }
+}

@@ -1,0 +1,14 @@
+services:
+  x402-gateway:
+    build: 
+      context: .
+      dockerfile: Dockerfile
+    ports:
+      - "3000:3000"
+    environment:
+      - CONFIG_PATH=config.docker.json
+    depends_on:
+      - backend
+
+  backend:
+    image: sagarparker/http-server:latest

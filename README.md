@@ -134,4 +134,3 @@ curl -v http://localhost:3000/protected-v2
 **Solana**:
 - Solana Mainnet
 - Solana Devnet
-# x402-gateway
