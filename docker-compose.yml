@@ -1,8 +1,6 @@
 services:
   x402-gateway:
-    build: 
-      context: .
-      dockerfile: Dockerfile
+    image: sagarparker/x402-gateway:latest
     ports:
       - "3000:3000"
     environment:
