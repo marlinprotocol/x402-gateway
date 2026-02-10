@@ -1,12 +1,12 @@
 services:
   x402-gateway:
     image: sagarparker/x402-gateway:latest
-    ports:
-      - "3000:3000"
+    network_mode: host
     environment:
       - CONFIG_PATH=config.docker.json
-    depends_on:
-      - backend
+    restart: unless-stopped
 
   backend:
     image: sagarparker/http-server:latest
+    network_mode: host
+    restart: unless-stopped

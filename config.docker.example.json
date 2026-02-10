@@ -1,7 +1,7 @@
 {
     "gateway_port": 3000,
     "facilitator_url": "https://www.x402.org/facilitator",
-    "target_api_url": "http://backend:3001",
+    "target_api_url": "http://127.0.0.1:3001",
     "networks": [
         {
             "type": "evm",
