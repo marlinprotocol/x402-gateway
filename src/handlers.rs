@@ -29,7 +29,10 @@ pub async fn proxy_request(
 
     let status = response.status();
     let headers = response.headers().clone();
-    let body = response.bytes().await.map_err(|_| StatusCode::BAD_GATEWAY)?;
+    let body = response
+        .bytes()
+        .await
+        .map_err(|_| StatusCode::BAD_GATEWAY)?;
 
     let mut response_builder = Response::builder().status(status.as_u16());
 

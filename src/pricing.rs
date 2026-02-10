@@ -2,10 +2,14 @@ use crate::config::NetworkConfig;
 use alloy_primitives::Address;
 use std::{str::FromStr, sync::Arc};
 
-use x402_axum::{facilitator_client::FacilitatorClient, StaticPriceTags, X402LayerBuilder, X402Middleware};
+use x402_axum::{
+    StaticPriceTags, X402LayerBuilder, X402Middleware, facilitator_client::FacilitatorClient,
+};
 use x402_chain_eip155::{KnownNetworkEip155, V1Eip155Exact, V2Eip155Exact};
 use x402_chain_solana::{KnownNetworkSolana, V1SolanaExact, V2SolanaExact};
-use x402_types::{networks::USDC, proto::v1::PriceTag as V1PriceTag, proto::v2::PriceTag as V2PriceTag};
+use x402_types::{
+    networks::USDC, proto::v1::PriceTag as V1PriceTag, proto::v2::PriceTag as V2PriceTag,
+};
 
 /// Get USDC deployment for EVM networks
 fn get_evm_usdc(network: &str) -> x402_chain_eip155::chain::Eip155TokenDeployment {
@@ -55,12 +59,18 @@ pub fn build_v1_layer(
 
     for net_config in networks {
         let tag = match net_config {
-            NetworkConfig::Evm { network, payment_address } => {
+            NetworkConfig::Evm {
+                network,
+                payment_address,
+            } => {
                 let address: Address = payment_address.parse().expect("Invalid EVM address");
                 let usdc = get_evm_usdc(network);
                 V1Eip155Exact::price_tag(address, usdc.amount(usdc_amount))
             }
-            NetworkConfig::Solana { network, payment_address } => {
+            NetworkConfig::Solana {
+                network,
+                payment_address,
+            } => {
                 let solana_addr = parse_solana_address(payment_address);
                 let usdc = get_solana_usdc(network);
                 V1SolanaExact::price_tag(solana_addr, usdc.amount(usdc_amount))
@@ -95,12 +105,18 @@ pub fn build_v2_layer(
 
     for net_config in networks {
         let tag = match net_config {
-            NetworkConfig::Evm { network, payment_address } => {
+            NetworkConfig::Evm {
+                network,
+                payment_address,
+            } => {
                 let address: Address = payment_address.parse().expect("Invalid EVM address");
                 let usdc = get_evm_usdc(network);
                 V2Eip155Exact::price_tag(address, usdc.amount(usdc_amount))
             }
-            NetworkConfig::Solana { network, payment_address } => {
+            NetworkConfig::Solana {
+                network,
+                payment_address,
+            } => {
                 let solana_addr = parse_solana_address(payment_address);
                 let usdc = get_solana_usdc(network);
                 V2SolanaExact::price_tag(solana_addr, usdc.amount(usdc_amount))

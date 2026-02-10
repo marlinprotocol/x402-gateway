@@ -4217,7 +4217,7 @@ dependencies = [
 ]
 
 [[package]]
-name = "x402-service"
+name = "x402-gateway"
 version = "0.1.0"
 dependencies = [
  "alloy-primitives",
@@ -4229,6 +4229,7 @@ dependencies = [
  "solana-pubkey 2.4.0",
  "tokio",
  "tower",
+ "tower-http",
  "tracing",
  "tracing-subscriber",
  "url",
