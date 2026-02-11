@@ -139,3 +139,82 @@ pub fn build_v2_layer(
 
     builder
 }
+
+#[cfg(test)]
+mod tests {
+    use super::*;
+
+    #[test]
+    fn test_get_evm_usdc_known_mainnets() {
+        // Should not panic for any supported mainnet
+        let networks = [
+            "base", "polygon", "avalanche", "sei", "xdc", "xrpl-evm", "peaq", "iotex", "celo",
+        ];
+        for network in &networks {
+            let _usdc = get_evm_usdc(network);
+        }
+    }
+
+    #[test]
+    fn test_get_evm_usdc_known_testnets() {
+        let networks = [
+            "base-sepolia",
+            "polygon-amoy",
+            "avalanche-fuji",
+            "sei-testnet",
+            "celo-sepolia",
+        ];
+        for network in &networks {
+            let _usdc = get_evm_usdc(network);
+        }
+    }
+
+    #[test]
+    fn test_get_evm_usdc_testnet_aliases() {
+        // Underscore aliases should also work
+        let aliases = [
+            "base_sepolia",
+            "polygon_amoy",
+            "avalanche_fuji",
+            "sei_testnet",
+            "celo_sepolia",
+        ];
+        for alias in &aliases {
+            let _usdc = get_evm_usdc(alias);
+        }
+    }
+
+    #[test]
+    #[should_panic(expected = "Unsupported EVM network")]
+    fn test_get_evm_usdc_unsupported_network() {
+        get_evm_usdc("unknown-chain");
+    }
+
+    #[test]
+    fn test_get_solana_usdc_known_networks() {
+        let networks = ["solana", "solana-mainnet", "solana-devnet", "solana_devnet"];
+        for network in &networks {
+            let _usdc = get_solana_usdc(network);
+        }
+    }
+
+    #[test]
+    #[should_panic(expected = "Unsupported Solana network")]
+    fn test_get_solana_usdc_unsupported_network() {
+        get_solana_usdc("solana-unknown");
+    }
+
+    #[test]
+    fn test_parse_solana_address_valid() {
+        // A valid base58 Solana public key (32 bytes)
+        let addr = parse_solana_address("EGBQqKn968sVv5cQh5Cr72pSTHfxsuzq7o7asqYB5uEV");
+        let addr_str = addr.to_string();
+        assert_eq!(addr_str, "EGBQqKn968sVv5cQh5Cr72pSTHfxsuzq7o7asqYB5uEV");
+    }
+
+    #[test]
+    #[should_panic(expected = "Invalid Solana address")]
+    fn test_parse_solana_address_invalid() {
+        parse_solana_address("not-a-valid-solana-address!!!");
+    }
+}
