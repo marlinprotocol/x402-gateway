@@ -77,23 +77,40 @@ The service is configured via a `config.json` file. You can set the path using t
     CONFIG_PATH=production.json cargo run --release
     ```
 
-## Docker Support
+## Test and Deploy on Oyster CVM
 
-You can run the entire stack (gateway + http-server) using Docker Compose.
+You can test locally and deploy the gateway to an Oyster CVM enclave. The config file is provided externally via init-params.
 
 1.  **Navigate to the gateway directory**:
     ```bash
     cd x402-gateway
     ```
-2.  **Start the services**:
-    ```bash
-    docker-compose up --build
-    ```
-3.  **Access**:
-    - Gateway: `http://localhost:3000`
-    - Backend: `http://localhost:3001` (internal only, unless ports mapped)
+2.  **Configure**: Copy `config.docker.example.json` to `config.docker.json` and update with your details.
 
-The Docker setup uses `config.docker.json` which treats the backend as `http://backend:3001`.
+3.  **Simulate locally** (for testing):
+    ```bash
+    oyster-cvm simulate --docker-compose docker-compose.yml --init-params "config.json:1:0:file:./config.docker.json"
+    ```
+
+4.  **Deploy to Oyster CVM**:
+    ```bash
+    oyster-cvm deploy \
+      --wallet-private-key <key> \
+      --duration-in-minutes 30 \
+      --arch amd64 \
+      --docker-compose docker-compose.yml \
+      --init-params "config.json:1:0:file:./config.docker.json"
+    ```
+
+### Init Params Format
+
+The `--init-params` flag follows the format: `<enclave_path>:<attest>:<encrypt>:<type>:<value>`
+
+- `config.json` — file is placed at `/init-params/config.json` inside the enclave
+- `1` — included in attestation
+- `0` — not encrypted (use `1` if your config contains secrets)
+- `file` — read from a local file
+- `./config.docker.json` — path to the local config file
 
 ## Usage
 
