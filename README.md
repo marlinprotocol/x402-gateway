@@ -1,6 +1,6 @@
 # x402 Gateway Service
 
-A high-performance, multi-chain payment gateway/proxy built with Rust and Axum. It implements the [x402](https://www.x402.org) protocol (V1 and V2) to monetize HTTP APIs using USDC on EVM and Solana networks.
+A fast, multi-chain payment gateway built with Rust and Axum, supporting x402 (V1 and V2) for monetizing HTTP APIs with USDC on both EVM and Solana.
 
 ## Features
 
