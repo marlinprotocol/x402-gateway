@@ -85,11 +85,11 @@ You can test locally and deploy the gateway to an Oyster CVM enclave. The config
     ```bash
     cd x402-gateway
     ```
-2.  **Configure**: Copy `config.docker.example.json` to `config.docker.json` and update with your details.
+2.  **Configure**: Copy `config.example.json` to `config.json` and update with your details.
 
 3.  **Simulate locally** (for testing):
     ```bash
-    oyster-cvm simulate --docker-compose docker-compose.yml --init-params "config.json:1:0:file:./config.docker.json"
+    oyster-cvm simulate --docker-compose docker-compose.yml --init-params "config.json:1:0:file:./config.json"
     ```
 
 4.  **Deploy to Oyster CVM**:
@@ -99,7 +99,7 @@ You can test locally and deploy the gateway to an Oyster CVM enclave. The config
       --duration-in-minutes 30 \
       --arch amd64 \
       --docker-compose docker-compose.yml \
-      --init-params "config.json:1:0:file:./config.docker.json"
+      --init-params "config.json:1:0:file:./config.json"
     ```
 
 ### Init Params Format
@@ -110,7 +110,7 @@ The `--init-params` flag follows the format: `<enclave_path>:<attest>:<encrypt>:
 - `1` — included in attestation
 - `0` — not encrypted (use `1` if your config contains secrets)
 - `file` — read from a local file
-- `./config.docker.json` — path to the local config file
+- `./config.json` — path to the local config file
 
 ## Usage
 
