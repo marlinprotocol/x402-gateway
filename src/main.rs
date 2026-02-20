@@ -3,7 +3,7 @@ mod handlers;
 mod pricing;
 mod state;
 
-use axum::{Router, routing::get};
+use axum::{Router, routing::any};
 use std::sync::Arc;
 use tower_http::cors::{Any, CorsLayer};
 
@@ -66,14 +66,14 @@ async fn main() -> Result<(), Box<dyn std::error::Error>> {
     // Add free routes (no payment required)
     for route in &config.routes.free {
         info!(route = %route, "Registering FREE route");
-        app = app.route(route, get(proxy_request));
+        app = app.route(route, any(proxy_request));
     }
 
     // Add protected routes with V1 price tags (all configured networks)
     for route_config in &config.routes.protected {
         info!(route = %route_config.path, amount = route_config.usdc_amount, protocol = "V1", "Registering PROTECTED route");
         let v1_layer = build_v1_layer(&x402, &config.networks, route_config.usdc_amount);
-        app = app.route(&route_config.path, get(proxy_request).layer(v1_layer));
+        app = app.route(&route_config.path, any(proxy_request).layer(v1_layer));
     }
 
     // Add V2 protected routes with -v2 suffix (all configured networks)
@@ -81,7 +81,7 @@ async fn main() -> Result<(), Box<dyn std::error::Error>> {
         let v2_route = format!("{}-v2", route_config.path);
         info!(route = %v2_route, amount = route_config.usdc_amount, protocol = "V2", "Registering PROTECTED route");
         let v2_layer = build_v2_layer(&x402, &config.networks, route_config.usdc_amount);
-        app = app.route(&v2_route, get(proxy_request).layer(v2_layer));
+        app = app.route(&v2_route, any(proxy_request).layer(v2_layer));
     }
 
     // Add CORS layer to allow frontend requests

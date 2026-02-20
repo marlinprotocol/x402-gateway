@@ -12,14 +12,33 @@ pub async fn proxy_request(
     State(state): State<Arc<AppState>>,
     req: Request<Body>,
 ) -> Result<Response, StatusCode> {
+    let method = req.method().clone();
     let path = req.uri().path();
+    let query = req.uri().query().map(|q| format!("?{}", q)).unwrap_or_default();
+
     // Strip the -v2 suffix if present (used only for x402 protocol version, not the backend endpoint)
     let backend_path = path.strip_suffix("-v2").unwrap_or(path);
-    let target_url = format!("{}{}", state.config.target_api_url, backend_path);
+    let target_url = format!("{}{}{}", state.config.target_api_url, backend_path, query);
+    println!("Target {} URL: {}", method.as_str(), target_url);
 
-    let response = state
-        .http_client
-        .get(&target_url)
+    let mut proxy_req = state.http_client.request(method, &target_url);
+
+    for (name, value) in req.headers() {
+        if name != axum::http::header::HOST {
+            proxy_req = proxy_req.header(name.as_str(), value.as_bytes());
+        }
+    }
+
+    let body_bytes = axum::body::to_bytes(req.into_body(), usize::MAX)
+        .await
+        .map_err(|e| {
+            error!(error = %e, "Failed to read request body");
+            StatusCode::BAD_REQUEST
+        })?;
+
+    proxy_req = proxy_req.body(body_bytes);
+
+    let response = proxy_req
         .send()
         .await
         .map_err(|e| {
@@ -28,7 +47,7 @@ pub async fn proxy_request(
         })?;
 
     let status = response.status();
-    let headers = response.headers().clone();
+    let resp_headers = response.headers().clone();
     let body = response
         .bytes()
         .await
@@ -36,7 +55,7 @@ pub async fn proxy_request(
 
     let mut response_builder = Response::builder().status(status.as_u16());
 
-    for (key, value) in headers.iter() {
+    for (key, value) in resp_headers.iter() {
         response_builder = response_builder.header(key, value);
     }
 
@@ -57,7 +76,7 @@ mod tests {
         Arc::new(AppState {
             config: Config {
                 gateway_port: 3000,
-                facilitator_url: "https://example.com".to_string(),
+                facilitator_url: "https://www.x402.org/facilitator".to_string(),
                 target_api_url: target_url.to_string(),
                 networks: vec![],
                 routes: RoutesConfig {
