@@ -1,6 +1,6 @@
 # x402 Gateway Service
 
-A fast, multi-chain payment gateway built with Rust and Axum, supporting x402 (V1 and V2) for monetizing HTTP APIs with USDC on both EVM and Solana.
+A high performance, multi chain payment gateway built with Rust and Axum, implementing x402 (V1 and V2) to monetize HTTP APIs using USDC across EVM and Solana networks, with integrated Oyster CVM TEE signature verification for secure, enclave backed request validation.
 
 ## Features
 
@@ -151,3 +151,64 @@ curl -v http://localhost:3000/protected-v2
 **Solana**:
 - Solana Mainnet
 - Solana Devnet
+
+## Verifying Signatures
+
+> Note : Set your EVM_PRIVATE_KEY and/or SOLANA_PRIVATE_KEY inside `.env`
+
+### Using the Verifier CLI
+
+Recover the public key from a signed response:
+
+```bash
+cargo run --bin verifier -- http://<ENCLAVE_IP>:8888/your-endpoint
+```
+
+Output:
+```
+Signature: <hex-encoded signature>
+Pubkey: <recovered public key>
+```
+
+### Using KMS Derive
+
+Get the expected public key directly from the KMS:
+
+```bash
+oyster-cvm kms-derive \
+  --image-id <IMAGE_ID> \
+  --path signing-server \
+  --key-type secp256k1/public
+```
+
+### Verification
+
+**The public key from the verifier should match the public key from `kms-derive`.** This confirms that:
+
+1. The response was signed by a valid Oyster enclave
+2. The enclave is running the expected image (identified by `image-id`)
+3. The signature was created using the KMS-derived key for `signing-server` path
+
+## Signature Format
+
+The `X-Signature` header contains a 65-byte hex-encoded signature:
+
+- Bytes 0-63: ECDSA signature (r, s)
+- Byte 64: Recovery ID + 27 (Ethereum-style)
+
+The message being signed is the Keccak256 hash of a structured payload containing:
+
+- Request method
+- Request path + query
+- Request body
+- Response body
+
+The payload format is:
+
+```text
+"oyster-signature-v2\0" ||
+u32be(len(request_method)) || request_method ||
+u32be(len(request_path_and_query)) || request_path_and_query ||
+u64be(len(request_body)) || request_body ||
+u64be(len(response_body)) || response_body
+```
