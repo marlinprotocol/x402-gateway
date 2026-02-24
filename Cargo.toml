@@ -9,19 +9,25 @@ axum = "0.8"
 tokio = { version = "1", features = ["full"] }
 serde = { version = "1", features = ["derive"] }
 serde_json = "1"
-x402-axum = "1.1"
-x402-chain-eip155 = { version = "1.1", features = ["server"] }
-x402-chain-solana = { version = "1.1", features = ["server"] }
-x402-types = "1.1"
+x402-axum = "1.3"
+x402-chain-eip155 = { version = "1.3", features = ["server", "client"] }
+x402-chain-solana = { version = "1.3", features = ["server"] }
+x402-types = "1.3"
 solana-pubkey = "2"
 alloy-primitives = "1.4"
-reqwest = { version = "0.12", features = ["json"] }
+reqwest = { version = "0.13", features = ["json"] }
+dotenvy = "0.15"
+x402-reqwest = "1.3"
+alloy-signer-local = "1.4"
 url = "2"
 http = "1"
 tower = "0.5"
 tracing = "0.1"
 tracing-subscriber = { version = "0.3", features = ["env-filter"] }
 tower-http = { version = "0.6", features = ["cors"] }
+k256 = { version = "0.13", features = ["ecdsa"] }
+sha3 = "0.10"
+hex = "0.4"
 
 [dev-dependencies]
 tempfile = "3"

@@ -2,3 +2,4 @@
 /config.json
 /config.docker.json
 .marlin
+.env

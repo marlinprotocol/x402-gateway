@@ -58,7 +58,7 @@ async fn main() -> Result<(), Box<dyn std::error::Error>> {
     // Create x402 middleware
     let x402 = X402Middleware::try_from(config.facilitator_url.as_str())?;
 
-    let state = Arc::new(AppState::new(config.clone()));
+    let state = Arc::new(AppState::new(config.clone()).await);
 
     // Build router dynamically from config
     let mut app = Router::new();
