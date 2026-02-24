@@ -1,6 +1,6 @@
 # x402 Gateway Service
 
-A high performance, multi chain payment gateway built with Rust and Axum, implementing x402 (V1 and V2) to monetize HTTP APIs using USDC across EVM and Solana networks, with integrated Oyster CVM TEE signature verification for secure, enclave backed request validation.
+A high performance, multi chain payment gateway built with Rust and Axum, implementing x402 (V1 and V2) to monetize HTTP APIs using USDC across EVM and Solana networks, with integrated Oyster CVM TEE signature verification for secure, enclave backed request verification.
 
 ## Features
 
