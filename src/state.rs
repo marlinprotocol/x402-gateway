@@ -12,8 +12,6 @@ pub struct AppState {
 
 impl AppState {
     pub async fn new(config: Config) -> Self {
-        // Build HTTP client with generous timeouts to support long-running
-        // LLM responses that can take minutes to fully generate.
         let http_client = reqwest::Client::builder()
             .connect_timeout(Duration::from_secs(30))
             .read_timeout(Duration::from_secs(300))

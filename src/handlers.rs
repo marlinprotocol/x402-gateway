@@ -64,9 +64,6 @@ pub async fn proxy_request(
     let mut response_builder = Response::builder().status(status.as_u16());
 
     for (key, value) in resp_headers.iter() {
-        // Skip hop-by-hop and framing headers since we've fully buffered the body.
-        // Forwarding transfer-encoding: chunked with a non-chunked body causes
-        // the client to receive a malformed/empty response.
         if key == "transfer-encoding" || key == "content-length" {
             continue;
         }
