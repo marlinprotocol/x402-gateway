@@ -1,6 +1,7 @@
 use crate::config::Config;
 use k256::ecdsa::SigningKey;
 use std::env;
+use std::time::Duration;
 
 #[derive(Clone)]
 pub struct AppState {
@@ -11,9 +12,15 @@ pub struct AppState {
 
 impl AppState {
     pub async fn new(config: Config) -> Self {
+        let http_client = reqwest::Client::builder()
+            .connect_timeout(Duration::from_secs(30))
+            .read_timeout(Duration::from_secs(300))
+            .build()
+            .expect("Failed to build HTTP client");
+
         Self {
             config,
-            http_client: reqwest::Client::new(),
+            http_client,
             signing_key: load_signing_key().await,
         }
     }
@@ -81,7 +88,6 @@ mod tests {
     async fn test_app_state_new() {
         let _guard = env_lock().lock().unwrap();
         let config = make_test_config();
-        // SAFETY: This test runs in isolation; mutating env vars is acceptable.
         unsafe {
             std::env::set_var(
                 "SIGNING_PRIVATE_KEY_HEX",
@@ -104,7 +110,6 @@ mod tests {
     async fn test_app_state_clone() {
         let _guard = env_lock().lock().unwrap();
         let config = make_test_config();
-        // SAFETY: This test runs in isolation; mutating env vars is acceptable.
         unsafe {
             std::env::set_var(
                 "SIGNING_PRIVATE_KEY_HEX",
