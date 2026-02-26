@@ -8,14 +8,14 @@ use axum::{
 use k256::ecdsa::SigningKey;
 use sha3::{Digest, Keccak256};
 use std::sync::Arc;
-use tracing::error;
+use tracing::{error, info};
 
 pub async fn proxy_request(
     State(state): State<Arc<AppState>>,
     req: Request<Body>,
 ) -> Result<Response, StatusCode> {
     let method = req.method().clone();
-    let path = req.uri().path();
+    let path = req.uri().path().to_string();
     let request_path_and_query = req
         .uri()
         .path_and_query()
@@ -24,7 +24,7 @@ pub async fn proxy_request(
     let query = req.uri().query().map(|q| format!("?{}", q)).unwrap_or_default();
 
     // Strip the -v2 suffix if present (used only for x402 protocol version, not the backend endpoint)
-    let backend_path = path.strip_suffix("-v2").unwrap_or(path);
+    let backend_path = path.strip_suffix("-v2").unwrap_or(&path);
     let target_url = format!("{}{}{}", state.config.target_api_url, backend_path, query);
     println!("Target {} URL: {}", method.as_str(), target_url);
 
@@ -64,6 +64,12 @@ pub async fn proxy_request(
     let mut response_builder = Response::builder().status(status.as_u16());
 
     for (key, value) in resp_headers.iter() {
+        // Skip hop-by-hop and framing headers since we've fully buffered the body.
+        // Forwarding transfer-encoding: chunked with a non-chunked body causes
+        // the client to receive a malformed/empty response.
+        if key == "transfer-encoding" || key == "content-length" {
+            continue;
+        }
         response_builder = response_builder.header(key, value);
     }
 
