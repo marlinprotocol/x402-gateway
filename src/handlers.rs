@@ -8,7 +8,7 @@ use axum::{
 use k256::ecdsa::SigningKey;
 use sha3::{Digest, Keccak256};
 use std::sync::Arc;
-use tracing::{error, info};
+use tracing::error;
 
 pub async fn proxy_request(
     State(state): State<Arc<AppState>>,
