@@ -5,7 +5,7 @@ use reqwest::Client;
 use sha3::{Digest, Keccak256};
 use std::env;
 use std::sync::Arc;
-use x402_chain_eip155::{V1Eip155ExactClient, V2Eip155ExactClient};
+use x402_chain_eip155::V2Eip155ExactClient;
 use x402_reqwest::{ReqwestWithPayments, ReqwestWithPaymentsBuild, X402Client};
 
 fn build_signing_message(
@@ -44,7 +44,6 @@ async fn main() -> Result<(), Box<dyn std::error::Error>> {
             println!("Using EVM signer address: {:?}", signer.address());
             let signer = Arc::new(signer);
             x402_client = x402_client
-                .register(V1Eip155ExactClient::new(signer.clone()))
                 .register(V2Eip155ExactClient::new(signer));
             println!("Enabled eip155 exact scheme");
         }

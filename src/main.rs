@@ -12,7 +12,7 @@ use x402_axum::X402Middleware;
 
 use crate::config::{NetworkConfig, load_config};
 use crate::handlers::proxy_request;
-use crate::pricing::{build_v1_layer, build_v2_layer};
+use crate::pricing::build_price_layer;
 use crate::state::AppState;
 
 #[tokio::main]
@@ -69,19 +69,11 @@ async fn main() -> Result<(), Box<dyn std::error::Error>> {
         app = app.route(route, any(proxy_request));
     }
 
-    // Add protected routes with V1 price tags (all configured networks)
+    // Add protected routes with V2 price tags (all configured networks)
     for route_config in &config.routes.protected {
-        info!(route = %route_config.path, amount = route_config.usdc_amount, protocol = "V1", "Registering PROTECTED route");
-        let v1_layer = build_v1_layer(&x402, &config.networks, route_config.usdc_amount);
-        app = app.route(&route_config.path, any(proxy_request).layer(v1_layer));
-    }
-
-    // Add V2 protected routes with -v2 suffix (all configured networks)
-    for route_config in &config.routes.protected {
-        let v2_route = format!("{}-v2", route_config.path);
-        info!(route = %v2_route, amount = route_config.usdc_amount, protocol = "V2", "Registering PROTECTED route");
-        let v2_layer = build_v2_layer(&x402, &config.networks, route_config.usdc_amount);
-        app = app.route(&v2_route, any(proxy_request).layer(v2_layer));
+        info!(route = %route_config.path, amount = route_config.usdc_amount, "Registering PROTECTED route");
+        let layer = build_price_layer(&x402, &config.networks, route_config.usdc_amount);
+        app = app.route(&route_config.path, any(proxy_request).layer(layer));
     }
 
     // Add CORS layer to allow frontend requests
