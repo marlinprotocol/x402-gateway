@@ -8,7 +8,7 @@ use axum::{
 use k256::ecdsa::SigningKey;
 use sha3::{Digest, Keccak256};
 use std::sync::Arc;
-use tracing::{error, info};
+use tracing::error;
 
 pub async fn proxy_request(
     State(state): State<Arc<AppState>>,
@@ -23,9 +23,7 @@ pub async fn proxy_request(
         .unwrap_or_else(|| "/".to_string());
     let query = req.uri().query().map(|q| format!("?{}", q)).unwrap_or_default();
 
-    // Strip the -v2 suffix if present (used only for x402 protocol version, not the backend endpoint)
-    let backend_path = path.strip_suffix("-v2").unwrap_or(&path);
-    let target_url = format!("{}{}{}", state.config.target_api_url, backend_path, query);
+    let target_url = format!("{}{}{}", state.config.target_api_url, path, query);
     println!("Target {} URL: {}", method.as_str(), target_url);
 
     let mut proxy_req = state.http_client.request(method.clone(), &target_url);
@@ -181,32 +179,6 @@ mod tests {
         assert_eq!(body_bytes, "Hello from backend");
     }
 
-    #[tokio::test]
-    async fn test_proxy_request_strips_v2_suffix() {
-        let mock_server = MockServer::start().await;
-
-        Mock::given(method("GET"))
-            .and(path("/endpoint"))
-            .respond_with(
-                ResponseTemplate::new(200).set_body_string("v2 stripped"),
-            )
-            .mount(&mock_server)
-            .await;
-
-        let state = make_state(&mock_server.uri());
-        let req = Request::builder()
-            .uri("/endpoint-v2")
-            .body(Body::empty())
-            .unwrap();
-
-        let response = proxy_request(State(state), req).await.unwrap();
-        assert_eq!(response.status(), StatusCode::OK);
-
-        let body_bytes = axum::body::to_bytes(response.into_body(), usize::MAX)
-            .await
-            .unwrap();
-        assert_eq!(body_bytes, "v2 stripped");
-    }
 
     #[tokio::test]
     async fn test_proxy_request_target_down() {

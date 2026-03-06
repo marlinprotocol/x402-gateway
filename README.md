@@ -1,11 +1,11 @@
 # x402 Gateway Service
 
-A high performance, multi chain payment gateway built with Rust and Axum, implementing x402 (V1 and V2) to monetize HTTP APIs using USDC across EVM and Solana networks, with integrated Oyster CVM TEE signature verification for secure, enclave backed request verification.
+A high performance, multi chain payment gateway built with Rust and Axum, implementing x402 (V2) to monetize HTTP APIs using USDC across EVM and Solana networks, with integrated Oyster CVM TEE signature verification for secure, enclave backed request validation.
 
 ## Features
 
 - **Multi-Chain Support**: Accept payments on multiple networks simultaneously (e.g., Base, Polygon, Solana).
-- **Dual Protocol Support**: Fully supports both x402 V1 and V2 protocols.
+- **x402 V2 Protocol**: Payment requirements returned in the `payment-required` header.
 - **Per-Endpoint Pricing**: Configure different payment amounts for different routes.
 - **TEE Signatures**: Responses are signed using a secp256k1 key (via Oyster KMS or env var) for enclave-backed verification.
 
@@ -126,7 +126,7 @@ This setup demonstrates monetizing an Ollama LLM behind the x402 gateway.
    ```
 6. Test a protected route (returns 402):
    ```bash
-   curl -v http://localhost:3000/api/chat-v2
+   curl -v http://localhost:3000/api/chat
    ```
 
 ### Docker Compose
@@ -187,18 +187,11 @@ The `--init-params` flag follows the format: `<enclave_path>:<attest>:<encrypt>:
 
 ## Usage
 
-### V1 Protocol
-Access protected routes directly. The gateway returns `402 Payment Required` with payment details in the body if no valid payment header is present.
+### Protocol
+Access protected routes directly. The gateway returns `402 Payment Required` with payment details in the `payment-required` header if no valid payment is present.
 
 ```bash
-curl http://localhost:3000/api/chat
-```
-
-### V2 Protocol
-Append `-v2` to your configured protected routes (e.g., `/api/chat-v2`). The gateway returns payment requirements in the `payment-required` header.
-
-```bash
-curl -v http://localhost:3000/api/chat-v2
+curl -v http://localhost:3000/api/chat
 ```
 
 ## Supported Networks
