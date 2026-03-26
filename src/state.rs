@@ -60,7 +60,7 @@ async fn load_signing_key() -> SigningKey {
 #[cfg(test)]
 mod tests {
     use super::*;
-    use crate::config::{RoutesConfig, ProtectedRoute};
+    use crate::config::ProtectedRoute;
     use std::sync::{Mutex, OnceLock};
 
     fn env_lock() -> &'static Mutex<()> {
@@ -74,13 +74,10 @@ mod tests {
             facilitator_url: "https://example.com".to_string(),
             target_api_url: "http://localhost:3001".to_string(),
             networks: vec![],
-            routes: RoutesConfig {
-                free: vec!["/health".to_string()],
-                protected: vec![ProtectedRoute {
-                    path: "/paid".to_string(),
-                    usdc_amount: 100,
-                }],
-            },
+            protected_routes: vec![ProtectedRoute {
+                path: "/paid".to_string(),
+                usdc_amount: 100,
+            }],
         }
     }
 
@@ -98,9 +95,8 @@ mod tests {
         assert_eq!(state.config.gateway_port, 8080);
         assert_eq!(state.config.facilitator_url, "https://example.com");
         assert_eq!(state.config.target_api_url, "http://localhost:3001");
-        assert_eq!(state.config.routes.free.len(), 1);
-        assert_eq!(state.config.routes.protected.len(), 1);
-        assert_eq!(state.config.routes.protected[0].usdc_amount, 100);
+        assert_eq!(state.config.protected_routes.len(), 1);
+        assert_eq!(state.config.protected_routes[0].usdc_amount, 100);
         unsafe {
             std::env::remove_var("SIGNING_PRIVATE_KEY_HEX");
         }

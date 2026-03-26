@@ -49,10 +49,9 @@ async fn main() -> Result<(), Box<dyn std::error::Error>> {
         facilitator = %config.facilitator_url,
         target_api = %config.target_api_url,
         network_count = config.networks.len(),
-        free_routes = ?config.routes.free,
-        protected_routes_count = config.routes.protected.len(),
+        protected_routes_count = config.protected_routes.len(),
         gateway_port = config.gateway_port,
-        "Loaded configuration"
+        "Loaded configuration (all non-protected routes are free)"
     );
 
     // Create x402 middleware
@@ -63,18 +62,16 @@ async fn main() -> Result<(), Box<dyn std::error::Error>> {
     // Build router dynamically from config
     let mut app = Router::new();
 
-    // Add free routes (no payment required)
-    for route in &config.routes.free {
-        info!(route = %route, "Registering FREE route");
-        app = app.route(route, any(proxy_request));
-    }
-
     // Add protected routes with V2 price tags (all configured networks)
-    for route_config in &config.routes.protected {
+    for route_config in &config.protected_routes {
         info!(route = %route_config.path, amount = route_config.usdc_amount, "Registering PROTECTED route");
         let layer = build_price_layer(&x402, &config.networks, route_config.usdc_amount);
         app = app.route(&route_config.path, any(proxy_request).layer(layer));
     }
+
+    // All other routes are free — use fallback to proxy without payment
+    app = app.fallback(proxy_request);
+    info!("All non-protected routes will be proxied freely");
 
     // Add CORS layer to allow frontend requests
     let cors = CorsLayer::new()

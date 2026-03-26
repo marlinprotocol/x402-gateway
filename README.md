@@ -32,17 +32,12 @@ The service is configured via a `config.json` file. You can set the path using t
       "payment_address": "YOUR_SOLANA_PUBKEY"
     }
   ],
-  "routes": {
-    "free": [
-      "/api/version"
-    ],
-    "protected": [
-      {
-        "path": "/api/chat",
-        "usdc_amount": 1
-      }
-    ]
-  }
+  "protected_routes": [
+    {
+      "path": "/api/chat",
+      "usdc_amount": 1
+    }
+  ]
 }
 ```
 
@@ -55,11 +50,9 @@ The service is configured via a `config.json` file. You can set the path using t
   - `type`: `"evm"` or `"solana"`.
   - `network`: Network identifier (e.g., `"base-sepolia"`, `"solana-devnet"`).
   - `payment_address`: Your wallet address for receiving payments.
-- `routes`:
-  - `free`: List of public routes that bypass payment checks.
-  - `protected`: List of routes requiring payment.
-    - `path`: The URL path.
-    - `usdc_amount`: Cost in USDC microunits (e.g., 1000 = 0.001 USDC).
+- `protected_routes`: List of routes requiring payment. **All other routes are proxied freely by default.**
+  - `path`: The URL path.
+  - `usdc_amount`: Cost in USDC microunits (e.g., 1000 = 0.001 USDC).
 
 ### Environment Variables
 
@@ -110,10 +103,9 @@ This setup demonstrates monetizing an Ollama LLM behind the x402 gateway.
    ```json
    {
      "target_api_url": "http://127.0.0.1:11434",
-     "routes": {
-       "free": ["/api/version"],
-       "protected": [{ "path": "/api/chat", "usdc_amount": 1 }]
-     }
+     "protected_routes": [
+       { "path": "/api/chat", "usdc_amount": 1 }
+     ]
    }
    ```
 4. Run the gateway:

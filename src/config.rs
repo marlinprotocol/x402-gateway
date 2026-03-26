@@ -21,18 +21,12 @@ pub struct ProtectedRoute {
 }
 
 #[derive(Debug, Deserialize, Clone)]
-pub struct RoutesConfig {
-    pub free: Vec<String>,
-    pub protected: Vec<ProtectedRoute>,
-}
-
-#[derive(Debug, Deserialize, Clone)]
 pub struct Config {
     pub gateway_port: u16,
     pub facilitator_url: String,
     pub target_api_url: String,
     pub networks: Vec<NetworkConfig>,
-    pub routes: RoutesConfig,
+    pub protected_routes: Vec<ProtectedRoute>,
 }
 
 pub fn load_config() -> Config {
@@ -63,13 +57,10 @@ mod tests {
                     "payment_address": "EGBQqKn968sVv5cQh5Cr72pSTHfxsuzq7o7asqYB5uEV"
                 }
             ],
-            "routes": {
-                "free": ["/free", "/health"],
-                "protected": [
-                    { "path": "/protected", "usdc_amount": 1000 },
-                    { "path": "/premium", "usdc_amount": 5000 }
-                ]
-            }
+            "protected_routes": [
+                { "path": "/protected", "usdc_amount": 1000 },
+                { "path": "/premium", "usdc_amount": 5000 }
+            ]
         }"#
     }
 
@@ -80,8 +71,7 @@ mod tests {
         assert_eq!(config.facilitator_url, "https://example.com/facilitator");
         assert_eq!(config.target_api_url, "http://127.0.0.1:3001");
         assert_eq!(config.networks.len(), 2);
-        assert_eq!(config.routes.free.len(), 2);
-        assert_eq!(config.routes.protected.len(), 2);
+        assert_eq!(config.protected_routes.len(), 2);
     }
 
     #[test]

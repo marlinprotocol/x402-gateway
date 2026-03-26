@@ -14,24 +14,18 @@
       "payment_address": "YOUR_SOLANA_PUBKEY_HERE"
     }
   ],
-  "routes": {
-    "free": [
-      "/free",
-      "/health"
-    ],
-    "protected": [
-      {
-        "path": "/protected",
-        "usdc_amount": 1000
-      },
-      {
-        "path": "/premium",
-        "usdc_amount": 5000
-      },
-      {
-        "path": "/vip",
-        "usdc_amount": 10000
-      }
-    ]
-  }
+  "protected_routes": [
+    {
+      "path": "/protected",
+      "usdc_amount": 1000
+    },
+    {
+      "path": "/premium",
+      "usdc_amount": 5000
+    },
+    {
+      "path": "/vip",
+      "usdc_amount": 10000
+    }
+  ]
 }

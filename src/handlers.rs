@@ -121,7 +121,7 @@ fn sign_message(signing_key: &SigningKey, message: &[u8]) -> String {
 #[cfg(test)]
 mod tests {
     use super::*;
-    use crate::config::{Config, ProtectedRoute, RoutesConfig};
+    use crate::config::{Config, ProtectedRoute};
     use axum::http::Request;
     use k256::ecdsa::SigningKey;
     use wiremock::matchers::{method, path};
@@ -134,13 +134,10 @@ mod tests {
                 facilitator_url: "https://www.x402.org/facilitator".to_string(),
                 target_api_url: target_url.to_string(),
                 networks: vec![],
-                routes: RoutesConfig {
-                    free: vec!["/free".to_string()],
-                    protected: vec![ProtectedRoute {
-                        path: "/protected".to_string(),
-                        usdc_amount: 1000,
-                    }],
-                },
+                protected_routes: vec![ProtectedRoute {
+                    path: "/protected".to_string(),
+                    usdc_amount: 1000,
+                }],
             },
             http_client: reqwest::Client::new(),
             signing_key: test_signing_key(),
