@@ -5,7 +5,7 @@ A high performance, multi chain payment gateway built with Rust and Axum, implem
 ## Features
 
 - **Multi-Chain Support**: Accept payments on multiple networks simultaneously (e.g., Base, Polygon, Solana).
-- **x402 V2 Protocol**: Payment requirements returned in the `payment-required` header.
+- **x402 V2 Protocol**: Payment requirements returned in the `Payment-Required` header.
 - **Per-Endpoint Pricing**: Configure different payment amounts for different routes.
 - **TEE Signatures**: Responses are signed using a secp256k1 key (via Oyster KMS or env var) for enclave-backed verification.
 
@@ -180,7 +180,7 @@ The `--init-params` flag follows the format: `<enclave_path>:<attest>:<encrypt>:
 ## Usage
 
 ### Protocol
-Access protected routes directly. The gateway returns `402 Payment Required` with payment details in the `payment-required` header if no valid payment is present.
+Access protected routes directly. The gateway returns `402 Payment Required` with payment details in the `Payment-Required` header if no valid payment is present.
 
 ```bash
 curl -v http://localhost:3000/api/chat
